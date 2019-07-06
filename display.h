@@ -14,7 +14,7 @@ public:
     bool IsClosed() {return m_isClosed;};
     void Clear(float r, float g, float b, float a);
     void Update();
-    void GetTransform(Transform* transform);
+    void SetTransform(Transform* transform);
 
 private:
     SDL_Window* m_window;

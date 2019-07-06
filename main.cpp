@@ -1,8 +1,8 @@
 /*
-    To Do List:
-    * need to figure out how to solve the overlapping problem.
-        * implement an array or vector containing all meshes, then loop through structure printing objects with highest z values
-        * need a way to find a Vertexes current z values then compare them to find the greatest
+    TO DO LIST:
+
+    * Enabling GL_DEPTH_TEST, configuring glDepthFunc() to GL_LESS, and clearing the GL_BUFFER_DEPTH_BIT solved my oerlapping prooblem
+       but i'm not entirely sure how it did it....
 
 */
 
@@ -42,50 +42,48 @@ int main(){
                           Vertex( glm::vec3(-0.5, -0.5, -0.5) ),};
     Mesh side2(vertices2, sizeof(vertices2)/sizeof(vertices2[0]));
 
-
-
     // top
     Shader orangeSide("./shaders/orangeWall");
-    Vertex vertices3[] = { Vertex( glm::vec3(0.25, 0.25, 0.5) ), 
-                          Vertex( glm::vec3(-0.25, 0.25, 0.5) ),
-                          Vertex( glm::vec3(-0.5, -0.5, 0.5) ),
+    Vertex vertices3[] = { Vertex( glm::vec3(-0.5, 0.5, 0.5) ), 
+                          Vertex( glm::vec3(0.5, 0.5, 0.5) ),
+                          Vertex( glm::vec3(-0.5, 0.5, -0.5) ),
                         
-                          Vertex( glm::vec3(0.5, 0.5, 0.5) ), 
-                          Vertex( glm::vec3(0.25, -0.25, 0.5) ),
-                          Vertex( glm::vec3(-0.5, -0.5, 0.5) ),};
+                          Vertex( glm::vec3(0.5, 0.5, -0.5) ), 
+                          Vertex( glm::vec3(-0.5, 0.5, -0.5) ),
+                          Vertex( glm::vec3(0.5, 0.5, 0.5) ),};
     Mesh side3(vertices3, sizeof(vertices3)/sizeof(vertices3[0]));
 
     // bottom
     Shader purpleSide("./shaders/purpleWall");
-    Vertex vertices4[] = { Vertex( glm::vec3(0.5, 0.5, 0.5) ), 
-                          Vertex( glm::vec3(-0.5, 0.5, 0.5) ),
-                          Vertex( glm::vec3(-0.5, -0.5, 0.5) ),
-                        
-                          Vertex( glm::vec3(0.5, 0.5, 0.5) ), 
+    Vertex vertices4[] = { Vertex( glm::vec3(-0.5, -0.5, 0.5) ), 
                           Vertex( glm::vec3(0.5, -0.5, 0.5) ),
-                          Vertex( glm::vec3(-0.5, -0.5, 0.5) ),};
+                          Vertex( glm::vec3(-0.5, -0.5, -0.5) ),
+                        
+                          Vertex( glm::vec3(0.5, -0.5, -0.5) ), 
+                          Vertex( glm::vec3(-0.5, -0.5, -0.5) ),
+                          Vertex( glm::vec3(0.5, -0.5, 0.5) ),};
     Mesh side4(vertices4, sizeof(vertices4)/sizeof(vertices4[0]));
 
     // left
     Shader whiteSide("./shaders/whiteWall");
-    Vertex vertices5[] = { Vertex( glm::vec3(0.5, 0.5, -0.5) ), 
+    Vertex vertices5[] = { Vertex( glm::vec3(-0.5, 0.5, 0.5) ), 
                           Vertex( glm::vec3(-0.5, 0.5, -0.5) ),
-                          Vertex( glm::vec3(-0.5, -0.5, -0.5) ),
+                          Vertex( glm::vec3(-0.5, -0.5, 0.5) ),
                         
-                          Vertex( glm::vec3(0.5, 0.5, -0.5) ), 
-                          Vertex( glm::vec3(0.5, -0.5, -0.5) ),
-                          Vertex( glm::vec3(-0.5, -0.5, -0.5) ),};
+                          Vertex( glm::vec3(-0.5, 0.5, -0.5) ), 
+                          Vertex( glm::vec3(-0.5, -0.5, -0.5) ),
+                          Vertex( glm::vec3(-0.5, -0.5, 0.5) ),};
     Mesh side5(vertices5, sizeof(vertices5)/sizeof(vertices5[0]));
 
     // right
     Shader yellowSide("./shaders/floor_shader");
-    Vertex vertices6[] = { Vertex( glm::vec3(0.25, 0.25, 0.5) ), 
-                          Vertex( glm::vec3(-0.25, 0.25, 0.5) ),
-                          Vertex( glm::vec3(-0.5, -0.5, 0.5) ),
+    Vertex vertices6[] = {Vertex( glm::vec3(0.5, 0.5, 0.5) ), 
+                          Vertex( glm::vec3(0.5, 0.5, -0.5) ),
+                          Vertex( glm::vec3(0.5, -0.5, 0.5) ),
                         
-                          Vertex( glm::vec3(0.5, 0.5, 0.5) ), 
-                          Vertex( glm::vec3(0.25, -0.25, 0.5) ),
-                          Vertex( glm::vec3(-0.5, -0.5, 0.5) ),};
+                          Vertex( glm::vec3(0.5, 0.5, -0.5) ), 
+                          Vertex( glm::vec3(0.5, -0.5, -0.5) ),
+                          Vertex( glm::vec3(0.5, -0.5, 0.5) ),};
     Mesh side6(vertices6, sizeof(vertices6)/sizeof(vertices6[0]));
     
 
@@ -93,40 +91,52 @@ int main(){
 
     // instantiate the transform class with our transformations
     Transform transform;
-    dpy.GetTransform(&transform);
-
-
-
-    // vector of Mesh* for sorting into Draw() order
-    std::vector<Mesh*> meshes {&side1, &side2};
-
+    dpy.SetTransform(&transform);
 
 
     while (!dpy.IsClosed()) {
-        dpy.Clear(0.0f, 0.2f, 0.7f, 1.0f);
+        dpy.Clear(0.0f, 0.0f, 0.0f, 1.0f);
+
+        // below solved the draw overlapping problem.....
+        // why....   I'm not entirely sure
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS); 
 
         /*
         // print z coordinate for testing
-        for (int i=0; i < mesh1.GetDrawCount(); i++) 
+        for (int i=0; i < side1.GetDrawCount(); i++) 
         {
-            std::cout << (mesh1.GetVert()+i)->GetPosZ() << ", ";
+            std::cout << (side1.GetVert()+i)->GetPosZ() << ", ";
         }
         std::cout << "\n";
         */
-
+        //std::cout << transform.GetPos()[2] << "\n";
+        
 
         // my meshes print in reverse order of being called, the last is top regardless of depth
-        whiteSide.Bind();
-        blueSide.Update(transform);
-        side1.Draw();
-
-        yellowSide.Bind();
+        greenSide.Bind();
         greenSide.Update(transform);
         side2.Draw();
 
+        orangeSide.Bind();
+        orangeSide.Update(transform);
+        side3.Draw();
 
+        blueSide.Bind();
+        blueSide.Update(transform);
+        side1.Draw();
 
+        purpleSide.Bind();
+        purpleSide.Update(transform);
+        side4.Draw();
 
+        //whiteSide.Bind();
+        //whiteSide.Update(transform);
+        //side5.Draw();
+
+        yellowSide.Bind();
+        yellowSide.Update(transform);
+        side6.Draw();
 
         dpy.Update();
     }

@@ -38,6 +38,7 @@ private:
     GLuint m_vertexArrayBuffers[NUM_BUFFERS];
     unsigned int m_drawCount; 
     Vertex* m_vertices;
+    
 };
 
 
