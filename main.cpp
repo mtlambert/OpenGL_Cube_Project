@@ -1,56 +1,132 @@
+/*
+    To Do List:
+    * need to figure out how to solve the overlapping problem.
+        * implement an array or vector containing all meshes, then loop through structure printing objects with highest z values
+        * need a way to find a Vertexes current z values then compare them to find the greatest
+
+*/
+
 #include <iostream>
 #include <GL/glew.h>
+#include <algorithm>
+#include <vector>
 #include "display.h"
 #include "shader.h"
 #include "mesh.h"
+#include "transform.h"
+
 
 int main(){
 
-    Display dpy(800, 600, "title");
-
-    // below we instantiate our shader object, with the file path to its file
-    Shader shader("./res/basicShader");
-
-    // instantiating a set of vertexes to draw by creating an array of vertex class objects
-    //  that will go into our Mesh class constructor and Mesh class will put into a buffer on the GPU. 
-    //  OpenGL coordinates are from -1 to 1, here we ignore the z coordinate since we are drawing 2D
-    /* 
-               1  1  1       x = 1 means right, x = 0 means middle, x = -1 means left
-            -1         1     y = 1 means top, y = 0 means middle, y = -1 means bottom
-            -1         1     z = 1 means close, z = 0 means middle, z = -1 means far
-            -1         1
-              -1 -1 -1       glm::vec3( x, y, z)
-
-    */
+    Display dpy(800, 800, "Test Window");
     
-    Vertex vertices[] = { Vertex( glm::vec3(0, 0, 0) ), 
-                          Vertex( glm::vec3(-1,-1, 0) ),
-                          Vertex( glm::vec3(-1, 1, 0) ),
-                          Vertex( glm::vec3(0, 0, 0) ), 
-                          Vertex( glm::vec3(1, 1, 0) ),
-                          Vertex( glm::vec3(1, -1, 0) ),};
+    // front
+    Shader blueSide("./shaders/blueWall");
+    Vertex vertices1[] = { Vertex( glm::vec3(0.5, 0.5, 0.5) ), 
+                          Vertex( glm::vec3(-0.5, 0.5, 0.5) ),
+                          Vertex( glm::vec3(-0.5, -0.5, 0.5) ),
+                        
+                          Vertex( glm::vec3(0.5, 0.5, 0.5) ), 
+                          Vertex( glm::vec3(0.5, -0.5, 0.5) ),
+                          Vertex( glm::vec3(-0.5, -0.5, 0.5) ),};
+    Mesh side1(vertices1, sizeof(vertices1)/sizeof(vertices1[0]));
+
+    // back
+    Shader greenSide("./shaders/greenWall");
+    Vertex vertices2[] = { Vertex( glm::vec3(0.5, 0.5, -0.5) ), 
+                          Vertex( glm::vec3(-0.5, 0.5, -0.5) ),
+                          Vertex( glm::vec3(-0.5, -0.5, -0.5) ),
+                        
+                          Vertex( glm::vec3(0.5, 0.5, -0.5) ), 
+                          Vertex( glm::vec3(0.5, -0.5, -0.5) ),
+                          Vertex( glm::vec3(-0.5, -0.5, -0.5) ),};
+    Mesh side2(vertices2, sizeof(vertices2)/sizeof(vertices2[0]));
+
+
+
+    // top
+    Shader orangeSide("./shaders/orangeWall");
+    Vertex vertices3[] = { Vertex( glm::vec3(0.25, 0.25, 0.5) ), 
+                          Vertex( glm::vec3(-0.25, 0.25, 0.5) ),
+                          Vertex( glm::vec3(-0.5, -0.5, 0.5) ),
+                        
+                          Vertex( glm::vec3(0.5, 0.5, 0.5) ), 
+                          Vertex( glm::vec3(0.25, -0.25, 0.5) ),
+                          Vertex( glm::vec3(-0.5, -0.5, 0.5) ),};
+    Mesh side3(vertices3, sizeof(vertices3)/sizeof(vertices3[0]));
+
+    // bottom
+    Shader purpleSide("./shaders/purpleWall");
+    Vertex vertices4[] = { Vertex( glm::vec3(0.5, 0.5, 0.5) ), 
+                          Vertex( glm::vec3(-0.5, 0.5, 0.5) ),
+                          Vertex( glm::vec3(-0.5, -0.5, 0.5) ),
+                        
+                          Vertex( glm::vec3(0.5, 0.5, 0.5) ), 
+                          Vertex( glm::vec3(0.5, -0.5, 0.5) ),
+                          Vertex( glm::vec3(-0.5, -0.5, 0.5) ),};
+    Mesh side4(vertices4, sizeof(vertices4)/sizeof(vertices4[0]));
+
+    // left
+    Shader whiteSide("./shaders/whiteWall");
+    Vertex vertices5[] = { Vertex( glm::vec3(0.5, 0.5, -0.5) ), 
+                          Vertex( glm::vec3(-0.5, 0.5, -0.5) ),
+                          Vertex( glm::vec3(-0.5, -0.5, -0.5) ),
+                        
+                          Vertex( glm::vec3(0.5, 0.5, -0.5) ), 
+                          Vertex( glm::vec3(0.5, -0.5, -0.5) ),
+                          Vertex( glm::vec3(-0.5, -0.5, -0.5) ),};
+    Mesh side5(vertices5, sizeof(vertices5)/sizeof(vertices5[0]));
+
+    // right
+    Shader yellowSide("./shaders/floor_shader");
+    Vertex vertices6[] = { Vertex( glm::vec3(0.25, 0.25, 0.5) ), 
+                          Vertex( glm::vec3(-0.25, 0.25, 0.5) ),
+                          Vertex( glm::vec3(-0.5, -0.5, 0.5) ),
+                        
+                          Vertex( glm::vec3(0.5, 0.5, 0.5) ), 
+                          Vertex( glm::vec3(0.25, -0.25, 0.5) ),
+                          Vertex( glm::vec3(-0.5, -0.5, 0.5) ),};
+    Mesh side6(vertices6, sizeof(vertices6)/sizeof(vertices6[0]));
     
 
-    /*
-    Vertex vertices[] = { Vertex( glm::vec3(0, 1, 0) ), 
-                          Vertex( glm::vec3(-1, -1, 0) ),
-                          Vertex( glm::vec3(1, -1, 0) )};
-    */
 
-    // instantiating the Mesh class with our vertices
-    //  below we calculate the numVertices by dividing the total size of verticies by the size of a single vertex 
-    Mesh mesh(vertices, sizeof(vertices)/sizeof(vertices[0]));
+
+    // instantiate the transform class with our transformations
+    Transform transform;
+    dpy.GetTransform(&transform);
+
+
+
+    // vector of Mesh* for sorting into Draw() order
+    std::vector<Mesh*> meshes {&side1, &side2};
 
 
 
     while (!dpy.IsClosed()) {
         dpy.Clear(0.0f, 0.2f, 0.7f, 1.0f);
 
-        // now that we have our shader class we can bind our shader to shade what we draw
-        shader.Bind();
-        
-        // used to actually draw our vertexes
-        mesh.Draw();
+        /*
+        // print z coordinate for testing
+        for (int i=0; i < mesh1.GetDrawCount(); i++) 
+        {
+            std::cout << (mesh1.GetVert()+i)->GetPosZ() << ", ";
+        }
+        std::cout << "\n";
+        */
+
+
+        // my meshes print in reverse order of being called, the last is top regardless of depth
+        whiteSide.Bind();
+        blueSide.Update(transform);
+        side1.Draw();
+
+        yellowSide.Bind();
+        greenSide.Update(transform);
+        side2.Draw();
+
+
+
+
 
         dpy.Update();
     }

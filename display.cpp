@@ -32,8 +32,84 @@ void Display::Update() {
     SDL_GL_SwapWindow(m_window);
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
-        if (e.type == SDL_QUIT){
-            m_isClosed = true;
+        switch (e.type) {
+            case SDL_QUIT:
+                m_isClosed = true;
+            case SDL_KEYDOWN:
+                switch (e.key.keysym.sym) {
+
+
+                    // move up
+                    case SDLK_w:
+                        m_transform->GetPos().y += 0.01;
+                        continue;
+                    // move down
+                    case SDLK_s:
+                        m_transform->GetPos().y -= 0.01;
+                        continue;
+                    // move left
+                    case SDLK_a:
+                        m_transform->GetPos().x -= 0.01;
+                        continue;
+                    // move right
+                    case SDLK_d:
+                        m_transform->GetPos().x += 0.01;
+                        continue;
+
+
+
+                    // zoom in
+                    case SDLK_i:
+                        m_transform->GetPos().z -= 0.01;
+                        m_transform->GetScale().x *= 1.01;
+                        m_transform->GetScale().y *= 1.01;
+                        m_transform->GetScale().z *= 1.01;
+                        continue;
+                    // zoom out
+                    case SDLK_o:
+                        m_transform->GetPos().z += 0.01;
+                        m_transform->GetScale().x *= 0.99;
+                        m_transform->GetScale().y *= 0.99;
+                        m_transform->GetScale().z *= 0.99;
+                        continue;
+
+
+
+                    // rotate top (flatten)
+                    case SDLK_u:
+                        m_transform->GetRot().x -= 0.01;
+                        continue;
+                    // rotate bottom
+                    case SDLK_j:
+                        m_transform->GetRot().x += 0.01;
+                        continue;
+
+
+
+                    // spin left
+                    case SDLK_h:
+                        m_transform->GetRot().z += 0.01;
+                        continue;
+                    // spin right
+                    case SDLK_k:
+                        m_transform->GetRot().z -= 0.01;
+                        continue;
+                    
+                    
+
+                    // flip left
+                    case SDLK_q:
+                        m_transform->GetRot().y -= 0.01;
+                        continue;
+                    // flip right
+                    case SDLK_e:
+                        m_transform->GetRot().y += 0.01;
+                        continue;
+                }
         }
     }
+}
+
+void Display::GetTransform(Transform* transform) {
+    m_transform = transform;
 }
